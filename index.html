@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>mind & sole — move. heal. serve. grow.</title>
+<link rel="icon" type="image/png" href="branding/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fff7e5;
+    --red:   #d52122;
+    --ink:   #1c1c1c;
+    --muted: #6b6257;
+    --border: rgba(28,28,28,0.1);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    position: fixed;
+    width: 14px; height: 14px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, opacity 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor.big { width: 44px; height: 44px; }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--red);
+    z-index: 200;
+    transition: width 0.1s;
+  }
+
+  /* ── HEADER (fixed wrapper for nav + menu) ── */
+  #site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    transition: background 0.35s, box-shadow 0.35s;
+  }
+  #site-header.scrolled {
+    background: var(--cream);
+    box-shadow: 0 1px 0 var(--border);
+  }
+
+  /* ── NAV BAR ── */
+  nav {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem 2rem;
+    position: relative;
+  }
+  .nav-logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .nav-logo img { height: 28px; width: auto; }
+  .nav-join {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--red);
+    color: var(--cream);
+    padding: 0.52rem 1.3rem;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  .nav-join.hide { opacity: 0; pointer-events: none; }
+  .hamburger {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: none;
+    padding: 6px;
+    background: none;
+    border: none;
+  }
+  .hamburger span {
+    display: block;
+    width: 22px; height: 1.5px;
+    background: var(--ink);
+    transition: transform 0.35s cubic-bezier(0.77,0,0.175,1), opacity 0.25s;
+    transform-origin: center;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  /* ── DROPDOWN — plain block inside fixed header ── */
+  .nav-dropdown {
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+  }
+  .nav-dropdown.open { max-height: 600px; }
+  .dropdown-inner { padding: 1.5rem 2rem 2rem; }
+  .dropdown-link {
+    display: block;
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    font-weight: 800;
+    color: var(--ink);
+    text-decoration: none;
+    text-transform: lowercase;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+    padding: 0.18rem 0;
+    transition: color 0.15s;
+  }
+  .dropdown-link:hover { color: var(--red); }
+  .dropdown-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+  .dropdown-cta {
+    display: block;
+    background: var(--red);
+    color: var(--cream);
+    padding: 0.85rem 1.4rem;
+    border-radius: 100px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: lowercase;
+  }
+
+  /* ── GRAIN OVERLAY on images ── */
+  .img-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .img-wrap img {
+    width: 100%; height: 115%;
+    object-fit: cover;
+    display: block;
+    transform: translateY(-7%);
+  }
+  .img-wrap::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E");
+    background-size: 180px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    height: 100vh;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-media {
+    position: absolute; inset: 0;
+    border-radius: 0;
+  }
+  .hero-media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+  .hero-media::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(28,28,28,0.15) 0%,
+      rgba(28,28,28,0.0) 50%
+    );
+    z-index: 1;
+  }
+  /* grain on hero */
+  .hero-media::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.15'/%3E%3C/svg%3E");
+    background-size: 180px;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  .hero-content {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 5;
+    padding: 0 1.8rem 2.5rem;
+  }
+  .hero-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: var(--cream);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .hero-label::before {
+    content: '';
+    display: block;
+    width: 20px; height: 1px;
+    background: var(--red);
+  }
+  .hero h1 {
+    position: absolute;
+    z-index: 2;
+    bottom: 22%;
+    left: 0;
+    padding-left: 1.8rem;
+    pointer-events: none;
+    font-size: 12vw;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--cream);
+    letter-spacing: -0.04em;
+    text-transform: lowercase;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .hero-sub {
+    position: absolute;
+    z-index: 5;
+    bottom: calc(22% + 13vw);
+    left: 1.8rem;
+    max-width: 360px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--cream);
+    font-weight: 300;
+    margin: 0;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+    text-decoration: none;
+    padding: 0.85rem 1.8rem;
+    border-radius: 100px;
+    cursor: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+  }
+  .btn-solid {
+    background: var(--red);
+    color: var(--cream);
+  }
+  .btn-solid:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(213,33,34,0.3); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--cream);
+    border: 1.5px solid rgba(255,247,229,0.5);
+  }
+  .btn-ghost:hover { background: rgba(255,247,229,0.12); transform: translateY(-2px); }
+  .btn-ink {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn-ink:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(28,28,28,0.2); }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--red);
+    padding: 0.75rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex;
+    animation: ticker 22s linear infinite;
+  }
+  .ticker-item {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    color: var(--cream);
+    padding: 0 1.8rem;
+  }
+  .ticker-dot { color: rgba(255,247,229,0.4); }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── SECTION BASE ── */
+  section { padding: 5rem 1.8rem; }
+
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    color: var(--red);
+    margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px; height: 1.5px;
+    background: var(--red);
+  }
+
+  .section-title {
+    font-size: clamp(2.8rem, 11vw, 6rem);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+    text-transform: lowercase;
+  }
+  .section-title em {
+    font-style: normal;
+    font-weight: 900;
+    color: var(--red);
+  }
+
+  /* GSAP sets initial states via gsap.from — no CSS opacity:0 needed */
+
+  /* ── INTRO / MANIFESTO ── */
+  .intro {
+    background: var(--cream);
+    padding: 6rem 1.8rem;
+  }
+  .intro-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    color: var(--red);
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .intro-eyebrow::before { content:''; width:20px; height:1.5px; background:var(--red); display:block; }
+  .intro-big {
+    font-size: clamp(1.6rem, 6vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+  .intro-big em {
+    font-style: normal;
+    font-weight: 900;
+    color: var(--red);
+  }
+  .intro-body {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 480px;
+    font-weight: 300;
+  }
+  /* ── FULL-BLEED SECTION BANNERS ── */
+  .section-banner {
+    position: relative;
+    width: 100%;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  .section-banner img {
+    width: 100%;
+    height: 100%;
+    min-height: 100svh;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+  .section-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(28,28,28,0.75) 0%, rgba(28,28,28,0.0) 55%);
+  }
+  .section-banner-content {
+    position: absolute;
+    z-index: 3;
+    bottom: 2.5rem;
+    left: 1.8rem;
+    right: 1.8rem;
+  }
+  .section-banner-content h2 {
+    font-size: clamp(2.4rem, 8vw, 5.5rem);
+    font-weight: 900;
+    color: var(--cream);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    text-transform: lowercase;
+  }
+  .section-banner-content h2 span { color: var(--red); }
+
+  /* ── PILLARS ── */
+  .pillars { background: var(--cream); padding-top: 0; }
+  .pillar-list { margin-top: 2.5rem; }
+  .pillar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.4rem;
+    padding: 1.6rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: padding-left 0.3s;
+  }
+  .pillar-item:first-child { border-top: 1px solid var(--border); }
+  .pillar-item:hover { padding-left: 0.4rem; }
+  .pillar-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--red);
+    min-width: 28px;
+    padding-top: 0.2rem;
+    letter-spacing: 0.08em;
+  }
+  .pillar-content h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: lowercase;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+  .pillar-content p {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .pillar-arrow {
+    margin-left: auto;
+    font-size: 1rem;
+    color: var(--red);
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    padding-top: 0.15rem;
+  }
+  .pillar-item:hover .pillar-arrow { opacity: 1; transform: translateX(4px); }
+
+  /* ── IMAGE STRIP ── */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    padding: 0 0 5rem;
+    background: var(--cream);
+  }
+  .strip .img-wrap { border-radius: 0; height: 260px; }
+  .strip .img-wrap:nth-child(2) { margin-top: 1.8rem; }
+
+  /* ── MOVEMENT / STATS ── */
+  .movement {
+    background: var(--ink);
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .movement .section-label { color: var(--cream); }
+  .movement .section-label::before { background: var(--cream); }
+  .movement-title {
+    font-size: clamp(2.4rem, 8vw, 5.5rem);
+    font-weight: 900;
+    color: var(--cream);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    text-transform: lowercase;
+  }
+  .movement-title span { color: var(--red); }
+  .movement-stats { padding: 5rem 1.8rem; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-top: 2.5rem;
+    background: rgba(255,247,229,0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,247,229,0.08);
+  }
+  .stat-box {
+    padding: 1.8rem 1.4rem;
+    background: rgba(255,247,229,0.03);
+    transition: background 0.25s;
+  }
+  .stat-box:hover { background: rgba(255,247,229,0.07); }
+  .stat-num {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1;
+    display: block;
+    letter-spacing: -0.03em;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--cream);
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.4rem;
+    line-height: 1.4;
+  }
+
+  /* ── EVENTS ── */
+  .events { background: var(--cream); }
+  .events .section-title { margin-bottom: 2.5rem; }
+  .event-card {
+    display: flex;
+    gap: 1.2rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+    transition: padding-left 0.25s;
+  }
+  .event-card:first-of-type { border-top: 1px solid var(--border); }
+  .event-card:hover { padding-left: 0.4rem; }
+  .event-date {
+    min-width: 46px;
+    text-align: center;
+    padding-top: 0.1rem;
+  }
+  .event-day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .event-month {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .event-info h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.25rem;
+  }
+  .event-info p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .event-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    color: var(--red);
+    background: rgba(213,33,34,0.08);
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    margin-top: 0.4rem;
+  }
+
+  /* ── DOUBLE IMAGE BLOCK ── */
+  .img-block {
+    padding: 0 0 5rem;
+    background: var(--cream);
+  }
+  .img-block-inner {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 3px;
+  }
+  .img-block .img-wrap { border-radius: 0; }
+  .img-block .img-wrap:first-child { height: 360px; }
+  .img-block .img-wrap:last-child { height: 280px; align-self: end; }
+
+  /* ── MENTAL HEALTH ── */
+  .mental { background: var(--cream); padding-top: 0; }
+  .mental-quote {
+    margin: 2.5rem 0;
+    padding: 2rem 1.8rem 2rem 1.4rem;
+    border-left: 3px solid var(--red);
+  }
+  .mental-quote p {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+  }
+  .mental-quote cite {
+    display: block;
+    margin-top: 0.8rem;
+    font-size: 0.68rem;
+    font-style: normal;
+    font-weight: 500;
+    color: var(--red);
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+  }
+  .fact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  .fact-box {
+    background: rgba(28,28,28,0.04);
+    border-radius: 14px;
+    padding: 1.4rem 1.1rem;
+    border: 1px solid var(--border);
+  }
+  .fact-box h4 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .fact-box p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 0.35rem;
+    font-weight: 300;
+  }
+
+  /* ── FULL-WIDTH IMAGE ── */
+  .full-img {
+    margin: 0 0 5rem;
+    border-radius: 0;
+    overflow: hidden;
+    height: 420px;
+    position: relative;
+  }
+  .full-img img { width:100%; height:100%; object-fit:cover; object-position: center 40%; }
+  .full-img::after {
+    content:''; position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E");
+    background-size:180px; mix-blend-mode:multiply; pointer-events:none;
+  }
+
+  /* ── CHARITY / SERVE ── */
+  .charity { background: var(--cream); padding-top: 0; }
+  .charity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-top: 2.5rem;
+  }
+  .charity-card {
+    background: var(--ink);
+    border-radius: 18px;
+    padding: 1.8rem 1.3rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s;
+  }
+  .charity-card:hover { transform: translateY(-4px); }
+  .charity-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+    margin-top: 2rem;
+  }
+  .charity-card p {
+    font-size: 0.75rem;
+    color: var(--cream);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .charity-icon {
+    font-size: 1.5rem;
+    display: block;
+  }
+  .charity-accent {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--red);
+  }
+
+  /* ── FUTURE ── */
+  .future { background: var(--red); padding: 5rem 1.8rem; overflow: hidden; position: relative; }
+  .future .section-label { color: var(--cream); }
+  .future .section-label::before { background: rgba(255,247,229,0.5); }
+  .future .section-title { color: var(--cream); }
+  .future .section-title em { color: var(--cream); font-style: normal; }
+  .future-list { margin-top: 2.5rem; }
+  .future-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid rgba(255,247,229,0.15);
+    transition: padding-left 0.25s;
+  }
+  .future-item:first-child { border-top: 1px solid rgba(255,247,229,0.15); }
+  .future-item:hover { padding-left: 0.4rem; }
+  .future-num { font-size: 0.62rem; font-weight: 700; color: var(--cream); min-width: 28px; padding-top: 0.2rem; letter-spacing: 0.08em; }
+  .future-text h4 { font-size: 1rem; font-weight: 700; color: var(--cream); text-transform: lowercase; letter-spacing: -0.01em; }
+  .future-text p { font-size: 0.78rem; color: var(--cream); margin-top: 0.2rem; line-height: 1.5; font-weight: 300; }
+  .future-arrow { margin-left: auto; color: rgba(255,247,229,0.4); opacity: 0; transition: opacity 0.25s; padding-top: 0.2rem; }
+  .future-item:hover .future-arrow { opacity: 1; }
+  .future-image {
+    border-radius: 18px;
+    overflow: hidden;
+    margin-top: 3rem;
+    height: 240px;
+  }
+  .future-image img { width:100%; height:100%; object-fit:cover; }
+  .future-image::after {
+    content:''; position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E");
+    background-size:180px; mix-blend-mode:multiply; pointer-events:none;
+  }
+
+  /* ── FOUNDERS ── */
+  .founders { background: var(--cream); }
+  .founder-card {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .founder-card:first-of-type { border-top: 1px solid var(--border); margin-top: 2.5rem; }
+  .founder-image {
+    border-radius: 16px;
+    overflow: hidden;
+    height: 280px;
+    margin-bottom: 1.5rem;
+  }
+  .founder-image img { width:100%; height:100%; object-fit:cover; object-position: center 10%; }
+  .founder-image::after {
+    content:''; position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E");
+    background-size:180px; mix-blend-mode:multiply; pointer-events:none;
+  }
+  .founder-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    background: rgba(213,33,34,0.1);
+    color: var(--red);
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+    margin-bottom: 0.8rem;
+  }
+  .founder-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .founder-role {
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: lowercase;
+    color: var(--red);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.8rem;
+  }
+  .founder-bio {
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .studio-credit {
+    margin-top: 3rem;
+    padding: 1.6rem;
+    background: rgba(28,28,28,0.04);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .studio-credit p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .studio-credit a {
+    color: var(--red);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .studio-credit a:hover { text-decoration: underline; }
+
+  /* ── SUBSCRIBE ── */
+  .subscribe {
+    background: var(--ink);
+    padding: 5rem 1.8rem;
+    text-align: center;
+  }
+  .subscribe .section-label { color: var(--red); justify-content: center; }
+  .subscribe .section-label::before { background: var(--red); }
+  .subscribe .section-title { color: var(--cream); }
+  .subscribe .section-title em { color: var(--cream); }
+  .subscribe p.sub-lead {
+    font-size: 0.88rem;
+    color: var(--cream);
+    line-height: 1.7;
+    max-width: 320px;
+    margin: 1rem auto 2.5rem;
+    font-weight: 300;
+  }
+  .subscribe-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .subscribe-form input {
+    width: 100%;
+    padding: 0.95rem 1.3rem;
+    background: rgba(255,247,229,0.06);
+    border: 1px solid rgba(255,247,229,0.12);
+    border-radius: 100px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    text-transform: lowercase;
+  }
+  .subscribe-form input::placeholder { color: rgba(255,247,229,0.3); }
+  .subscribe-form input:focus { border-color: rgba(255,247,229,0.3); background: rgba(255,247,229,0.1); }
+  .subscribe-form button {
+    width: 100%;
+    padding: 0.95rem;
+    background: var(--red);
+    color: var(--cream);
+    border: none;
+    border-radius: 100px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+    cursor: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .subscribe-form button:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(213,33,34,0.35); }
+  .sub-note { font-size: 0.68rem; color: var(--cream); margin-top: 0.7rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0;
+  }
+  .footer-inner {
+    padding: 4rem 1.8rem 0;
+  }
+  .footer-top {
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-nav-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+    color: var(--red);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .footer-nav-label::before {
+    content: '';
+    display: block;
+    width: 16px; height: 1.5px;
+    background: var(--red);
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0;
+    flex-direction: column;
+  }
+  .footer-links a {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s, padding-left 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .footer-links a::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 1.5px;
+    background: var(--red);
+    transition: width 0.2s;
+    flex-shrink: 0;
+  }
+  .footer-links a:hover { color: var(--red); }
+  .footer-links a:hover::before { width: 16px; }
+  .footer-links a:last-child { border-bottom: none; }
+  .footer-mid {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-mid p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 360px;
+  }
+  .footer-subscribe {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-form {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .footer-email {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .footer-email::placeholder { color: var(--muted); }
+  .footer-email:focus { border-color: var(--red); }
+  .footer-submit {
+    background: var(--red);
+    color: var(--cream);
+    padding: 0.65rem 1.4rem;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    cursor: none;
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .footer-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(213,33,34,0.28); }
+  .footer-bottom {
+    padding: 2rem 0 2.5rem;
+  }
+  .footer-copy {
+    font-size: 0.65rem;
+    color: var(--ink);
+    text-transform: lowercase;
+  }
+  /* full-width wordmark at bottom */
+  .footer-wordmark {
+    width: 100%;
+    padding-top: 1rem;
+    line-height: 0;
+  }
+  .footer-wordmark img {
+    width: 100%;
+    height: auto;
+    display: block;
+    opacity: 0.2;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (min-width: 640px) {
+    .intro-image-row { grid-template-columns: 1fr 1fr 1fr; }
+    .intro-image-row .img-wrap { height: 260px; }
+    .intro-image-row .img-wrap:first-child { height: 300px; }
+    .fact-grid { grid-template-columns: repeat(4, 1fr); }
+    .charity-grid { grid-template-columns: repeat(4, 1fr); }
+    .founder-card:first-of-type { margin-top: 0; }
+    .founder-cards-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2.5rem 0; margin-top: 2.5rem; }
+    .strip { grid-template-columns: repeat(3, 1fr); }
+    .img-block-inner { grid-template-columns: 1.4fr 1fr; }
+  }
+
+  /* section titles: GSAP drives clip-path + opacity */
+  .section-title { clip-path: inset(0 101% 0 0); }
+</style>
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="progress-bar" id="progress"></div>
+
+<!-- HEADER: fixed wrapper for nav bar + dropdown -->
+<header id="site-header">
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <img src="branding/logomark.png" alt="mind &amp; sole" />
+    </a>
+    <a href="#subscribe" class="nav-join" id="nav-join">join us</a>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="nav-dropdown" id="nav-dropdown">
+    <div class="dropdown-inner">
+      <a href="#home" class="dropdown-link">home</a>
+      <a href="#pillars" class="dropdown-link">about</a>
+      <a href="#movement" class="dropdown-link">move</a>
+      <a href="#events" class="dropdown-link">events</a>
+      <a href="#serve" class="dropdown-link">serve</a>
+      <a href="#future" class="dropdown-link">vision</a>
+      <a href="#founders" class="dropdown-link">founders</a>
+      <div class="dropdown-divider"></div>
+      <a href="#subscribe" class="dropdown-cta">join us</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-media img-wrap">
+    <img src="images/13.jpg" alt="running at sunrise" />
+  </div>
+  <h1><span class="hl">move your world.</span></h1>
+  <p class="hero-sub">you don't need to be an athlete to change your life. one step is all it takes. mind &amp; sole is a movement for everyone.</p>
+  <div class="hero-content">
+    <div class="hero-label">south africa · est. 2026</div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">move your body</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">free your mind</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">serve your community</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">depression hates a moving object</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">south africa · est. 2026</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">move your body</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">free your mind</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">serve your community</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">depression hates a moving object</span><span class="ticker-item ticker-dot">◆</span>
+    <span class="ticker-item">south africa · est. 2026</span><span class="ticker-item ticker-dot">◆</span>
+  </div>
+</div>
+
+<!-- INTRO / MANIFESTO -->
+<section class="intro">
+  <div class="intro-eyebrow reveal">the manifesto</div>
+  <p class="intro-body reveal">we are not here for the perfect body. we are here for the moving one. one walk can change a mood. a changed mood can change a day. a changed day can change a life. mental health is not weakness — it is the most human thing there is.</p>
+</section>
+
+<div class="section-banner reveal">
+  <img src="images/11.jpg" alt="running silhouette" />
+  <div class="section-banner-content">
+    <h2>depression hates<br>a <span>moving</span> object.</h2>
+  </div>
+</div>
+
+<!-- PILLARS -->
+<section class="pillars" id="pillars">
+  <div class="section-label reveal">what we stand for</div>
+  <h2 class="section-title reveal">three pillars.<br><em>one mission.</em></h2>
+
+  <div class="pillar-list">
+    <div class="pillar-item reveal">
+      <span class="pillar-num">01</span>
+      <div class="pillar-content">
+        <h3>the movement</h3>
+        <p>community walks, runs and events open to everyone — no fitness level required. one step is enough to begin. bi-monthly events across south africa, growing every year.</p>
+      </div>
+      <span class="pillar-arrow">→</span>
+    </div>
+    <div class="pillar-item reveal">
+      <span class="pillar-num">02</span>
+      <div class="pillar-content">
+        <h3>mental health</h3>
+        <p>we create safe, judgment-free spaces where mental health is talked about openly. depression, anxiety, and emotional struggle are human — and movement is one of the most powerful medicines.</p>
+      </div>
+      <span class="pillar-arrow">→</span>
+    </div>
+    <div class="pillar-item reveal">
+      <span class="pillar-num">03</span>
+      <div class="pillar-content">
+        <h3>community service</h3>
+        <p>pad drives, feeding schemes, blanket drives for the homeless. service is not a side project — it is who we are. we show up because that is what community means.</p>
+      </div>
+      <span class="pillar-arrow">→</span>
+    </div>
+  </div>
+</section>
+
+<!-- FULL-BLEED BANNER: COMMUNITY -->
+<div class="section-banner">
+  <img src="images/6.jpg" alt="running together" />
+  <div class="section-banner-content">
+    <h2>move <span>together.</span></h2>
+  </div>
+</div>
+
+<!-- MOVEMENT / STATS -->
+<section class="movement" id="movement">
+  <div class="movement-stats">
+    <div class="section-label reveal">by the numbers</div>
+    <h2 class="movement-title reveal">moving <span>together</span><br>changes everything.</h2>
+    <div class="stat-grid">
+      <div class="stat-box reveal"><span class="stat-num" data-count="6">6+</span><span class="stat-label">events per year</span></div>
+      <div class="stat-box reveal"><span class="stat-num">∞</span><span class="stat-label">who can join</span></div>
+      <div class="stat-box reveal"><span class="stat-num">1</span><span class="stat-label">step is all it takes</span></div>
+      <div class="stat-box reveal"><span class="stat-num">0</span><span class="stat-label">fitness level required</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section class="events" id="events">
+  <div class="section-label reveal">what's coming</div>
+  <h2 class="section-title reveal">mark your<br><em>calendar.</em></h2>
+
+  <div class="event-card reveal">
+    <div class="event-date"><div class="event-day">15</div><div class="event-month">feb</div></div>
+    <div class="event-info">
+      <h3>community walk</h3>
+      <p>sunrise walk open to all. no pace, no pressure. just movement and people who show up.</p>
+      <span class="event-tag">movement</span>
+    </div>
+  </div>
+
+  <div class="event-card reveal">
+    <div class="event-date"><div class="event-day">22</div><div class="event-month">feb</div></div>
+    <div class="event-info">
+      <h3>community run</h3>
+      <p>early morning energy. fresh streets, good people. your first step starts here.</p>
+      <span class="event-tag">movement</span>
+    </div>
+  </div>
+
+  <div class="event-card reveal">
+    <div class="event-date"><div class="event-day">08</div><div class="event-month">mar</div></div>
+    <div class="event-info">
+      <h3>pad drive — women's month</h3>
+      <p>drop-off points across south africa. every pad matters. every woman deserves dignity.</p>
+      <span class="event-tag">service</span>
+    </div>
+  </div>
+
+  <div class="event-card reveal">
+    <div class="event-date"><div class="event-day">apr</div><div class="event-month">2026</div></div>
+    <div class="event-info">
+      <h3>mental health walk + talk</h3>
+      <p>move your body. share your story. guest speakers, safe space, community healing.</p>
+      <span class="event-tag">mental health</span>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem;" class="reveal">
+    <a href="#subscribe" class="btn btn-ink">get event updates</a>
+  </div>
+</section>
+
+<!-- FULL-BLEED BANNER: TRAIN -->
+<div class="section-banner">
+  <img src="images/12.jpg" alt="sunset workout" />
+  <div class="section-banner-content">
+    <h2>show up.<br>every time.</h2>
+  </div>
+</div>
+<div class="section-banner">
+  <img src="images/3.jpg" alt="yoga class" />
+  <div class="section-banner-content">
+    <h2>find your <span>pace.</span></h2>
+  </div>
+</div>
+
+<!-- MENTAL HEALTH -->
+<section class="mental">
+  <div class="section-label reveal">why it matters</div>
+  <h2 class="section-title reveal">your mind<br><em>deserves</em><br>the same care.</h2>
+
+  <div class="mental-quote reveal">
+    <p>a ten-minute walk does what antidepressants try to do — it releases serotonin, dopamine, and endorphins. it breaks the loop. it reminds you that your body is capable.</p>
+    <cite>— the science behind mind &amp; sole</cite>
+  </div>
+
+  <div class="fact-grid">
+    <div class="fact-box reveal"><h4>1 in 4</h4><p>people will experience a mental health condition in their lifetime</p></div>
+    <div class="fact-box reveal"><h4>30m</h4><p>of walking 5× per week reduces depression symptoms significantly</p></div>
+    <div class="fact-box reveal"><h4>80%</h4><p>of people in SA with mental illness have no access to care</p></div>
+    <div class="fact-box reveal"><h4>0</h4><p>fitness level needed to start. just breathe and move.</p></div>
+  </div>
+</section>
+
+
+<!-- SERVE / CHARITY -->
+<section class="charity" id="serve">
+  <div class="section-label reveal">community service</div>
+  <h2 class="section-title reveal">we serve<br>because<br><em>we care.</em></h2>
+  <p style="margin-top:1rem; font-size:0.85rem; color:var(--muted); line-height:1.75; max-width:380px; font-weight:300;" class="reveal">our charity work is not marketing. it is the foundation of who we are. every drive, every meal, every blanket is an act of love for south africa.</p>
+
+  <div class="charity-grid">
+    <div class="charity-card reveal">
+      <span class="charity-icon">○</span>
+      <h3>pad drives</h3>
+      <p>menstrual health access for every woman</p>
+      <div class="charity-accent"></div>
+    </div>
+    <div class="charity-card reveal">
+      <span class="charity-icon">◇</span>
+      <h3>feeding</h3>
+      <p>hot meals for those who need them most</p>
+      <div class="charity-accent"></div>
+    </div>
+    <div class="charity-card reveal">
+      <span class="charity-icon">□</span>
+      <h3>blankets</h3>
+      <p>warmth and dignity for the homeless</p>
+      <div class="charity-accent"></div>
+    </div>
+    <div class="charity-card reveal">
+      <span class="charity-icon">△</span>
+      <h3>and growing</h3>
+      <p>more causes as the movement expands</p>
+      <div class="charity-accent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section class="future" id="future">
+  <div class="section-label reveal">where we're going</div>
+  <h2 class="section-title reveal">this is only<br><em>the beginning.</em></h2>
+
+  <div class="future-list">
+    <div class="future-item reveal"><span class="future-num">01</span><div class="future-text"><h4>national expansion</h4><p>every province, every stride — south africa is our home ground</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">02</span><div class="future-text"><h4>corporate wellness</h4><p>bringing mind &amp; sole into workplaces — where burnout lives</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">03</span><div class="future-text"><h4>youth &amp; schools</h4><p>mental health starts young. we meet them where they are</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">04</span><div class="future-text"><h4>mind &amp; sole app</h4><p>track your walks. check in on your mind. stay connected</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">05</span><div class="future-text"><h4>merchandise with purpose</h4><p>every piece sold funds the mission — wear the movement</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">06</span><div class="future-text"><h4>annual summit &amp; gala</h4><p>the biggest celebration of movement, healing and community</p></div><span class="future-arrow">→</span></div>
+    <div class="future-item reveal"><span class="future-num">07</span><div class="future-text"><h4>international chapters</h4><p>the movement goes wherever the need exists</p></div><span class="future-arrow">→</span></div>
+  </div>
+
+  <div class="section-banner reveal" style="margin-top:3rem">
+    <img src="images/9.jpg" alt="training together" />
+    <div class="section-banner-content">
+      <h2 style="color:var(--cream)">the future <span>is moving.</span></h2>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDERS -->
+<section class="founders" id="founders">
+  <div class="section-label reveal">the people behind it</div>
+  <h2 class="section-title reveal">built by<br><em>dreamers.</em><br>for everyone.</h2>
+  <p style="margin-top:1rem; font-size:0.85rem; color:var(--muted); line-height:1.75; font-weight:300;" class="reveal">done waiting for someone else to build what south africa needed. mind &amp; sole was born from that impatience — and that love.</p>
+
+  <div class="founder-cards-wrap">
+    <div class="founder-cards">
+      <div class="founder-card reveal-left">
+        <span class="founder-tag">co-founder</span>
+        <div class="founder-name">yanelisa ngcunukane</div>
+        <div class="founder-role">chapter lead &amp; community director</div>
+        <p class="founder-bio">active, caring, and grounded in her community. yanelisa builds spaces where everyone feels welcome to move, talk, and grow — because she knows what it means to need one.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="studio-credit reveal">
+    <p>mind &amp; sole is backed by <a href="https://www.studiooceans.co.za" target="_blank" rel="noopener">studio oceans</a> — a south african creative studio dedicated to building brands that make the country better.</p>
+  </div>
+</section>
+
+<!-- SUBSCRIBE -->
+<section class="subscribe" id="subscribe">
+  <div class="section-label reveal">join the movement</div>
+  <h2 class="section-title reveal">be the <em>first</em><br>to know.</h2>
+  <p class="sub-lead reveal">event updates, mental health resources, and community news. no spam. just movement.</p>
+
+  <div class="subscribe-form reveal">
+    <input type="text" placeholder="your name" />
+    <input type="email" placeholder="your email" />
+    <button type="submit" id="join-btn">join mind &amp; sole →</button>
+    <p class="sub-note">no spam. unsubscribe anytime. we respect your inbox like we respect your pace.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <p class="footer-nav-label">navigate</p>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="#home">home</a>
+        <a href="#pillars">about</a>
+        <a href="#movement">movement</a>
+        <a href="#events">events</a>
+        <a href="#serve">community</a>
+        <a href="#future">vision</a>
+        <a href="#founders">founders</a>
+        <a href="#subscribe">join us</a>
+      </nav>
+    </div>
+    <div class="footer-mid">
+      <p>mind &amp; sole is a south african wellness movement dedicated to improving mental health through physical activity and community connection. backed by <a href="https://www.studiooceans.co.za" target="_blank" rel="noopener" style="color:var(--red);font-weight:500;text-decoration:none;">studio oceans</a>.</p>
+    </div>
+    <div class="footer-subscribe">
+      <form class="footer-form" id="footer-form" novalidate>
+        <input type="email" class="footer-email" id="footer-email" placeholder="your email" autocomplete="email" required />
+        <button type="submit" class="footer-submit" id="footer-submit">join us</button>
+      </form>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 mind &amp; sole. all rights reserved.</span>
+    </div>
+  </div>
+  <div class="footer-wordmark">
+    <img src="branding/wordmark.png" alt="mind &amp; sole" />
+  </div>
+</footer>
+
+<script>
+  // ── CURSOR ──
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.pillar-item,.event-card,.charity-card,.future-item,.stat-box').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+
+  // ── PROGRESS ──
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  });
+
+  // ── NAV ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ── HAMBURGER / DROPDOWN ──
+  (function() {
+    const btn      = document.getElementById('hamburger');
+    const dropdown = document.getElementById('nav-dropdown');
+    const joinPill = document.getElementById('nav-join');
+    let isOpen = false;
+
+    function openMenu() {
+      isOpen = true;
+      dropdown.classList.add('open');
+      btn.classList.add('open');
+      joinPill.classList.add('hide');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+      isOpen = false;
+      dropdown.classList.remove('open');
+      btn.classList.remove('open');
+      joinPill.classList.remove('hide');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
+    dropdown.querySelectorAll('.dropdown-link, .dropdown-cta').forEach(l => l.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+    document.addEventListener('click', e => {
+      if (isOpen && !dropdown.contains(e.target) && !btn.contains(e.target)) closeMenu();
+    });
+  })();
+
+  // ── SUBSCRIBE BUTTON ──
+  document.getElementById('join-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    this.textContent = "✓ you're in the movement!";
+    this.style.background = '#1c1c1c';
+    setTimeout(() => { this.textContent = 'join mind & sole →'; this.style.background = ''; }, 4000);
+    burst();
+  });
+
+  // ── FOOTER FORM ──
+  document.getElementById('footer-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('footer-submit');
+    btn.textContent = '✓ welcome!';
+    btn.style.background = '#1c1c1c';
+    setTimeout(() => { btn.textContent = 'join us'; btn.style.background = ''; }, 4000);
+  });
+
+  // ── GSAP ──
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.ticker.lagSmoothing(0);
+
+  // ═══════════════════════════════════════
+  //  HERO ENTRANCE
+  // ═══════════════════════════════════════
+  // Staggered line-by-line hero headline
+  gsap.from('.hl', {
+    opacity: 0,
+    y: 40,
+    duration: 1.2,
+    ease: 'power4.out',
+    delay: 0.25
+  });
+  gsap.from('.hero-label', { opacity: 0, x: -20, duration: 0.8, delay: 0.3, ease: 'power3.out' });
+  gsap.from('.hero-sub',   { opacity: 0, y: 22,  duration: 0.8, delay: 1.1, ease: 'power3.out' });
+  gsap.from('.hero-actions .btn', { opacity: 0, y: 18, stagger: 0.1, duration: 0.7, delay: 1.3, ease: 'power3.out' });
+
+  // Hero image slow-zoom on scroll
+  gsap.to('.hero-media img', {
+    scale: 1.12,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1.5
+    }
+  });
+
+  // ═══════════════════════════════════════
+  //  SECTION TITLE CLIP-PATH WIPE
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.section-title').forEach(el => {
+    gsap.to(el, {
+      clipPath: 'inset(0 0% 0 0)',
+      ease: 'power4.inOut',
+      duration: 1.1,
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+    });
+  });
+
+  // ═══════════════════════════════════════
+  //  SECTION LABELS — SLIDE IN FROM LEFT
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.section-label, .intro-eyebrow').forEach(el => {
+    gsap.from(el, {
+      x: -30, opacity: 0, duration: 0.65, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+    });
+  });
+
+  // ═══════════════════════════════════════
+  //  INTRO BIG TEXT — WORD SPLIT
+  // ═══════════════════════════════════════
+  (function() {
+    const el = document.querySelector('.intro-big');
+    if (!el) return;
+    // split by word, preserve <br> and <em>
+    el.innerHTML = el.innerHTML
+      .split(/(<br\s*\/?>)/gi)
+      .map(part => part.match(/<br/i) ? part :
+        part.split(/\s+/).filter(Boolean).map(w =>
+          `<span style="display:inline-block;overflow:hidden;vertical-align:bottom"><span class="wrd">${w}</span></span>`
+        ).join(' ')
+      ).join('');
+    gsap.from('.wrd', {
+      yPercent: 105, opacity: 0, stagger: 0.055, duration: 0.75, ease: 'power4.out',
+      scrollTrigger: { trigger: el, start: 'top 86%', once: true }
+    });
+  })();
+
+  // ═══════════════════════════════════════
+  //  IMAGE PARALLAX — all containers
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.img-wrap, .movement-image, .full-img, .future-image').forEach(wrap => {
+    const img = wrap.querySelector('img');
+    if (!img) return;
+    gsap.fromTo(img,
+      { yPercent: 0 },
+      {
+        yPercent: -12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: wrap,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.4
+        }
+      }
+    );
+  });
+
+  // ═══════════════════════════════════════
+  //  BODY TEXT FADE-UP
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.intro-body, .hero-sub, .founder-bio, .mental-quote p, .sub-lead, .studio-credit p, [style*="font-weight:300"]').forEach(el => {
+    gsap.from(el, {
+      y: 24, opacity: 0, duration: 0.8, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+    });
+  });
+
+  // ═══════════════════════════════════════
+  //  PILLAR ITEMS — stagger slide from left
+  // ═══════════════════════════════════════
+  gsap.from('.pillar-item', {
+    x: -50, opacity: 0,
+    stagger: 0.1, duration: 0.75, ease: 'power3.out',
+    scrollTrigger: { trigger: '.pillar-list', start: 'top 82%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  IMAGE STRIP — staggered scale reveal
+  // ═══════════════════════════════════════
+  gsap.from('.strip .img-wrap', {
+    scale: 0.88, opacity: 0,
+    stagger: 0.12, duration: 0.9, ease: 'power3.out',
+    clearProps: 'scale',
+    scrollTrigger: { trigger: '.strip', start: 'top 88%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  STAT BOXES — pop in with bounce
+  // ═══════════════════════════════════════
+  gsap.from('.stat-box', {
+    scale: 0.65, opacity: 0,
+    stagger: { each: 0.1, from: 'random' },
+    duration: 0.7, ease: 'back.out(2.2)',
+    clearProps: 'scale',
+    scrollTrigger: { trigger: '.stat-grid', start: 'top 82%', once: true }
+  });
+
+  // Stat counters
+  document.querySelectorAll('.stat-num').forEach(el => {
+    const raw = el.textContent.trim();
+    if (raw === '∞' || raw === '0') return;
+    const isPlus = raw.endsWith('+');
+    const target = parseInt(raw);
+    if (isNaN(target)) return;
+    const obj = { val: 0 };
+    ScrollTrigger.create({
+      trigger: el, start: 'top 85%', once: true,
+      onEnter: () => gsap.to(obj, {
+        val: target, duration: 1.8, ease: 'power2.out',
+        onUpdate: () => { el.textContent = Math.round(obj.val) + (isPlus ? '+' : ''); }
+      })
+    });
+  });
+
+  // ═══════════════════════════════════════
+  //  EVENT CARDS — stagger up
+  // ═══════════════════════════════════════
+  gsap.from('.event-card', {
+    y: 35, opacity: 0,
+    stagger: 0.09, duration: 0.7, ease: 'power3.out',
+    scrollTrigger: { trigger: '.events', start: 'top 80%', once: true }
+  });
+  gsap.from('.events .btn', {
+    y: 20, opacity: 0, duration: 0.65, ease: 'power3.out',
+    scrollTrigger: { trigger: '.events .btn', start: 'top 90%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  IMG-BLOCK — offset entrance
+  // ═══════════════════════════════════════
+  gsap.from('.img-block-inner .img-wrap:first-child', {
+    x: -40, opacity: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.img-block', start: 'top 85%', once: true }
+  });
+  gsap.from('.img-block-inner .img-wrap:last-child', {
+    x: 40, opacity: 0, duration: 0.9, ease: 'power3.out', delay: 0.1,
+    scrollTrigger: { trigger: '.img-block', start: 'top 85%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  MENTAL QUOTE — reveal
+  // ═══════════════════════════════════════
+  gsap.from('.mental-quote', {
+    x: -30, opacity: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.mental-quote', start: 'top 85%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  FACT BOXES — stagger up
+  // ═══════════════════════════════════════
+  gsap.from('.fact-box', {
+    y: 28, opacity: 0,
+    stagger: 0.1, duration: 0.65, ease: 'power3.out',
+    scrollTrigger: { trigger: '.fact-grid', start: 'top 84%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  FULL-WIDTH IMAGE — scale + fade
+  // ═══════════════════════════════════════
+  gsap.from('.full-img', {
+    scale: 0.94, opacity: 0, duration: 1.0, ease: 'power3.out',
+    clearProps: 'scale',
+    scrollTrigger: { trigger: '.full-img', start: 'top 88%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  CHARITY CARDS — stagger scale up
+  // ═══════════════════════════════════════
+  gsap.from('.charity-card', {
+    y: 30, scale: 0.92, opacity: 0,
+    stagger: 0.09, duration: 0.7, ease: 'power3.out',
+    clearProps: 'scale',
+    scrollTrigger: { trigger: '.charity-grid', start: 'top 82%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  FUTURE ITEMS — stagger from left
+  // ═══════════════════════════════════════
+  gsap.from('.future-item', {
+    x: -35, opacity: 0,
+    stagger: 0.07, duration: 0.65, ease: 'power3.out',
+    scrollTrigger: { trigger: '.future-list', start: 'top 80%', once: true }
+  });
+  gsap.from('.future-image', {
+    y: 40, opacity: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.future-image', start: 'top 88%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  FOUNDER CARD — slide from left + image scale
+  // ═══════════════════════════════════════
+  gsap.from('.founder-card', {
+    x: -40, opacity: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '.founder-cards-wrap', start: 'top 82%', once: true }
+  });
+  gsap.from('.studio-credit', {
+    y: 24, opacity: 0, duration: 0.75, ease: 'power3.out',
+    scrollTrigger: { trigger: '.studio-credit', start: 'top 90%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  SUBSCRIBE SECTION
+  // ═══════════════════════════════════════
+  gsap.from('.subscribe .section-label', {
+    x: -20, opacity: 0, duration: 0.65, ease: 'power3.out',
+    scrollTrigger: { trigger: '.subscribe', start: 'top 82%', once: true }
+  });
+  gsap.from('.subscribe-form input, .subscribe-form button', {
+    y: 20, opacity: 0,
+    stagger: 0.08, duration: 0.65, ease: 'power3.out',
+    scrollTrigger: { trigger: '.subscribe-form', start: 'top 86%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  INTRO IMAGE ROW — staggered pop
+  // ═══════════════════════════════════════
+  gsap.from('.intro-image-row .img-wrap', {
+    scale: 0.88, opacity: 0,
+    stagger: 0.14, duration: 0.95, ease: 'power3.out',
+    clearProps: 'scale',
+    scrollTrigger: { trigger: '.intro-image-row', start: 'top 85%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  FOOTER WORDMARK — scroll-scrub reveal
+  // ═══════════════════════════════════════
+  gsap.from('.footer-wordmark img', {
+    opacity: 0, y: 30, duration: 1.0, ease: 'power3.out',
+    scrollTrigger: { trigger: '.footer-wordmark', start: 'top 95%', once: true }
+  });
+
+  // ═══════════════════════════════════════
+  //  MAGNETIC BUTTONS
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.btn, .nav-join, .dropdown-cta').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      gsap.to(btn, {
+        x: (e.clientX - r.left - r.width/2) * 0.3,
+        y: (e.clientY - r.top - r.height/2) * 0.3,
+        duration: 0.3, ease: 'power2.out'
+      });
+    });
+    btn.addEventListener('mouseleave', () => {
+      gsap.to(btn, { x: 0, y: 0, duration: 0.65, ease: 'elastic.out(1,0.5)' });
+    });
+  });
+
+  // ═══════════════════════════════════════
+  //  CHARITY CARD 3D TILT
+  // ═══════════════════════════════════════
+  document.querySelectorAll('.charity-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      gsap.to(card, {
+        rotateY: ((e.clientX - r.left - r.width/2) / r.width) * 10,
+        rotateX: -((e.clientY - r.top - r.height/2) / r.height) * 10,
+        transformPerspective: 700, duration: 0.35, ease: 'power2.out'
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.8, ease: 'elastic.out(1,0.5)' });
+    });
+  });
+
+  // ── CONFETTI ──
+  const CCOLS = ['#d52122','#fff7e5','#1c1c1c','#ffffff','#d52122'];
+  function burst() {
+    const cc = document.createElement('canvas');
+    Object.assign(cc.style, { position:'fixed', inset:'0', pointerEvents:'none', zIndex:'99999', width:'100%', height:'100%' });
+    document.body.appendChild(cc);
+    cc.width = window.innerWidth; cc.height = window.innerHeight;
+    const cx = cc.getContext('2d');
+    const pcs = Array.from({ length: 120 }, () => ({
+      x: Math.random() * cc.width, y: -15,
+      r: Math.random() * 6 + 2,
+      color: CCOLS[Math.floor(Math.random() * CCOLS.length)],
+      vx: (Math.random() - .5) * 6, vy: Math.random() * 4 + 2,
+      rot: Math.random() * 360, rotV: (Math.random() - .5) * 8,
+      rect: Math.random() > .5
+    }));
+    (function frame() {
+      cx.clearRect(0, 0, cc.width, cc.height);
+      let any = false;
+      pcs.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.rot += p.rotV;
+        if (p.y < cc.height + 20) any = true;
+        cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot * Math.PI/180);
+        cx.fillStyle = p.color;
+        if (p.rect) cx.fillRect(-p.r, -p.r*.5, p.r*2, p.r);
+        else { cx.beginPath(); cx.arc(0, 0, p.r, 0, Math.PI*2); cx.fill(); }
+        cx.restore();
+      });
+      if (any) requestAnimationFrame(frame); else cc.remove();
+    })();
+  }
+
+  // ── CURSOR TRAIL ──
+  const trailCanvas = document.createElement('canvas');
+  Object.assign(trailCanvas.style, { position:'fixed', top:'0', left:'0', width:'100%', height:'100%', pointerEvents:'none', zIndex:'9994' });
+  document.body.appendChild(trailCanvas);
+  const tCtx = trailCanvas.getContext('2d');
+  const resizeTrail = () => { trailCanvas.width = window.innerWidth; trailCanvas.height = window.innerHeight; };
+  resizeTrail(); window.addEventListener('resize', resizeTrail);
+  const TCOLS = ['#d52122','#d52122','#d52122','#1c1c1c','#fff7e5'];
+  const tParts = [];
+  window.addEventListener('mousemove', e => {
+    for (let i = 0; i < 4; i++) {
+      tParts.push({
+        x: e.clientX + (Math.random()-.5)*8, y: e.clientY + (Math.random()-.5)*8,
+        r: Math.random()*4+1,
+        color: TCOLS[Math.floor(Math.random()*TCOLS.length)],
+        vx: (Math.random()-.5)*2.5, vy: Math.random()*-3-.5,
+        life: 1
+      });
+    }
+  });
+  (function trailLoop() {
+    tCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    for (let i = tParts.length-1; i >= 0; i--) {
+      const p = tParts[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15;
+      p.r *= 0.93; p.life -= 0.05;
+      if (p.life <= 0 || p.r < 0.3) { tParts.splice(i,1); continue; }
+      tCtx.globalAlpha = p.life * 0.7;
+      tCtx.fillStyle = p.color;
+      tCtx.beginPath(); tCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); tCtx.fill();
+    }
+    tCtx.globalAlpha = 1;
+    requestAnimationFrame(trailLoop);
+  })();
+</script>
+</body>
+</html>
