@@ -1326,12 +1326,15 @@
   <h2 class="section-title reveal">be the <em>first</em><br>to know.</h2>
   <p class="sub-lead reveal">event updates, mental health resources, and community news. no spam. just movement.</p>
 
-  <div class="subscribe-form reveal">
-    <input type="text" placeholder="your name" />
-    <input type="email" placeholder="your email" />
+  <form class="subscribe-form reveal" id="main-subscribe-form" action="https://mindandsole.us7.list-manage.com/subscribe/post?u=b97179a693f1a29f1bc3921d8&amp;id=a2c257985e&amp;f_id=0039cee1f0" method="post" target="_blank" novalidate>
+    <input type="text" name="FNAME" placeholder="your name" />
+    <input type="email" name="EMAIL" placeholder="your email" required />
+    <div style="position:absolute;left:-5000px" aria-hidden="true">
+      <input type="text" name="b_b97179a693f1a29f1bc3921d8_a2c257985e" tabindex="-1" value="">
+    </div>
     <button type="submit" id="join-btn">join mind &amp; sole →</button>
     <p class="sub-note">no spam. unsubscribe anytime. we respect your inbox like we respect your pace.</p>
-  </div>
+  </form>
 </section>
 
 <!-- FOOTER -->
@@ -1354,8 +1357,11 @@
       <p>mind &amp; sole is a south african wellness movement dedicated to improving mental health through physical activity and community connection. backed by <a href="https://www.studiooceans.co.za" target="_blank" rel="noopener" style="color:var(--red);font-weight:500;text-decoration:none;">studio oceans</a>.</p>
     </div>
     <div class="footer-subscribe">
-      <form class="footer-form" id="footer-form" novalidate>
-        <input type="email" class="footer-email" id="footer-email" placeholder="your email" autocomplete="email" required />
+      <form class="footer-form" id="footer-form" action="https://mindandsole.us7.list-manage.com/subscribe/post?u=b97179a693f1a29f1bc3921d8&amp;id=a2c257985e&amp;f_id=0039cee1f0" method="post" target="_blank" novalidate>
+        <input type="email" name="EMAIL" class="footer-email" id="footer-email" placeholder="your email" autocomplete="email" required />
+        <div style="position:absolute;left:-5000px" aria-hidden="true">
+          <input type="text" name="b_b97179a693f1a29f1bc3921d8_a2c257985e" tabindex="-1" value="">
+        </div>
         <button type="submit" class="footer-submit" id="footer-submit">join us</button>
       </form>
     </div>
@@ -1423,21 +1429,15 @@
   })();
 
   // ── SUBSCRIBE BUTTON ──
-  document.getElementById('join-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    this.textContent = "✓ you're in the movement!";
-    this.style.background = '#1c1c1c';
-    setTimeout(() => { this.textContent = 'join mind & sole →'; this.style.background = ''; }, 4000);
-    burst();
+  document.getElementById('main-subscribe-form').addEventListener('submit', function() {
+    const btn = document.getElementById('join-btn');
+    btn.textContent = "sending...";
   });
 
   // ── FOOTER FORM ──
-  document.getElementById('footer-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+  document.getElementById('footer-form').addEventListener('submit', function() {
     const btn = document.getElementById('footer-submit');
-    btn.textContent = '✓ welcome!';
-    btn.style.background = '#1c1c1c';
-    setTimeout(() => { btn.textContent = 'join us'; btn.style.background = ''; }, 4000);
+    btn.textContent = 'sending...';
   });
 
   // ── GSAP ──
@@ -1809,5 +1809,7 @@
     requestAnimationFrame(trailLoop);
   })();
 </script>
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+<script type="text/javascript">(function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';}(jQuery));var $mcj=jQuery.noConflict(true);</script>
 </body>
 </html>
