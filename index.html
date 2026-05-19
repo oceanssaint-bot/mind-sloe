@@ -1326,7 +1326,7 @@
   <h2 class="section-title reveal">be the <em>first</em><br>to know.</h2>
   <p class="sub-lead reveal">event updates, mental health resources, and community news. no spam. just movement.</p>
 
-  <form class="subscribe-form reveal" id="main-subscribe-form" action="https://mindandsole.us7.list-manage.com/subscribe/post?u=b97179a693f1a29f1bc3921d8&amp;id=a2c257985e&amp;f_id=0039cee1f0" method="post" target="_blank" novalidate>
+  <form class="subscribe-form reveal" id="main-subscribe-form" novalidate>
     <input type="text" name="FNAME" placeholder="your name" />
     <input type="email" name="EMAIL" placeholder="your email" required />
     <div style="position:absolute;left:-5000px" aria-hidden="true">
@@ -1357,7 +1357,7 @@
       <p>mind &amp; sole is a south african wellness movement dedicated to improving mental health through physical activity and community connection. backed by <a href="https://www.studiooceans.co.za" target="_blank" rel="noopener" style="color:var(--red);font-weight:500;text-decoration:none;">studio oceans</a>.</p>
     </div>
     <div class="footer-subscribe">
-      <form class="footer-form" id="footer-form" action="https://mindandsole.us7.list-manage.com/subscribe/post?u=b97179a693f1a29f1bc3921d8&amp;id=a2c257985e&amp;f_id=0039cee1f0" method="post" target="_blank" novalidate>
+      <form class="footer-form" id="footer-form" novalidate>
         <input type="email" name="EMAIL" class="footer-email" id="footer-email" placeholder="your email" autocomplete="email" required />
         <div style="position:absolute;left:-5000px" aria-hidden="true">
           <input type="text" name="b_b97179a693f1a29f1bc3921d8_a2c257985e" tabindex="-1" value="">
@@ -1428,16 +1428,46 @@
     });
   })();
 
-  // ── SUBSCRIBE BUTTON ──
-  document.getElementById('main-subscribe-form').addEventListener('submit', function() {
+  // ── MAILCHIMP AJAX ──
+  const MC_URL = 'https://mindandsole.us7.list-manage.com/subscribe/post-json?u=b97179a693f1a29f1bc3921d8&id=a2c257985e&f_id=0039cee1f0';
+
+  function submitMailchimp(email, fname, btnEl, successMsg) {
+    btnEl.textContent = 'sending...';
+    btnEl.disabled = true;
+    const params = new URLSearchParams({ EMAIL: email, FNAME: fname || '', 'b_b97179a693f1a29f1bc3921d8_a2c257985e': '' });
+    const cbName = '_mc_cb_' + Date.now();
+    window[cbName] = function(data) {
+      delete window[cbName];
+      script.remove();
+      if (data.result === 'success') {
+        btnEl.textContent = successMsg;
+        btnEl.style.background = 'var(--ink)';
+      } else {
+        const msg = data.msg && data.msg.includes('already subscribed') ? 'already subscribed!' : 'try again.';
+        btnEl.textContent = msg;
+        setTimeout(() => { btnEl.textContent = btnEl.dataset.orig; btnEl.style.background = ''; btnEl.disabled = false; }, 3000);
+      }
+    };
+    const script = document.createElement('script');
+    script.src = MC_URL + '&' + params.toString() + '&c=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  document.getElementById('main-subscribe-form').addEventListener('submit', function(e) {
+    e.preventDefault();
     const btn = document.getElementById('join-btn');
-    btn.textContent = "sending...";
+    btn.dataset.orig = btn.textContent;
+    const email = this.querySelector('[name="EMAIL"]').value;
+    const fname = this.querySelector('[name="FNAME"]').value;
+    submitMailchimp(email, fname, btn, "you're in!");
   });
 
-  // ── FOOTER FORM ──
-  document.getElementById('footer-form').addEventListener('submit', function() {
+  document.getElementById('footer-form').addEventListener('submit', function(e) {
+    e.preventDefault();
     const btn = document.getElementById('footer-submit');
-    btn.textContent = 'sending...';
+    btn.dataset.orig = btn.textContent;
+    const email = this.querySelector('[name="EMAIL"]').value;
+    submitMailchimp(email, '', btn, 'welcome!');
   });
 
   // ── GSAP ──
@@ -1809,7 +1839,5 @@
     requestAnimationFrame(trailLoop);
   })();
 </script>
-<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
-<script type="text/javascript">(function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';}(jQuery));var $mcj=jQuery.noConflict(true);</script>
 </body>
 </html>
